@@ -1,17 +1,23 @@
 package handler
 
-import "github.com/JohnKucharsky/real_world_fiber_gorm/user"
+import (
+	"github.com/JohnKucharsky/real_world_fiber_gorm/domain"
+)
 
 type Handler struct {
-	userStore user.Store
-	validator *Validator
+	userStore    domain.UserStore
+	productStore domain.ProductStore
+	orderStore   domain.OrderStore
 }
 
-func NewHandler(us user.Store) *Handler {
-	v := NewValidator()
-
+func NewHandler(
+	us domain.UserStore,
+	ps domain.ProductStore,
+	os domain.OrderStore,
+) *Handler {
 	return &Handler{
-		userStore: us,
-		validator: v,
+		userStore:    us,
+		productStore: ps,
+		orderStore:   os,
 	}
 }

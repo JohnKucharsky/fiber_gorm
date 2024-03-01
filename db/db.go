@@ -1,17 +1,15 @@
 package db
 
 import (
-	"github.com/JohnKucharsky/real_world_fiber_gorm/model"
+	"context"
+	"github.com/induzo/gocom/database/pginit/v2"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
-	_ "github.com/lib/pq"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 	"log"
 	"os"
 )
 
-func New() *gorm.DB {
+func New() *pgxpool.Pool {
 	if err := godotenv.Load(); err != nil {
 		log.Println("Can't load env")
 	}
@@ -23,22 +21,18 @@ func New() *gorm.DB {
 		dbAddressString = dbAddress
 	}
 
-	db, err := gorm.Open(
-		postgres.Open(dbAddressString), &gorm.Config{
-			Logger: logger.Default.LogMode(logger.Info),
-		},
-	)
+	ctx := context.Background()
+	pgi, err := pginit.New(dbAddressString)
+
 	if err != nil {
 		log.Fatal("Can't connect to db", err.Error())
 	}
 
-	return db
-}
+	pool, err := pgi.ConnPool(ctx)
 
-func AutoMigrate(db *gorm.DB) error {
-	err := db.AutoMigrate(&model.User{})
 	if err != nil {
-		return err
+		log.Fatal("Can't connect to db", err.Error())
 	}
-	return nil
+
+	return pool
 }
